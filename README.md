@@ -284,7 +284,7 @@ Using the resulting ISO file, attach to the EDGE SITE server and boot the server
 
 ## References
 
-[NMState IPSec configuration](https://nmstate.io/devel/yaml_api.html#ipsec-encryption)
-[Libreswan Configuration](https://libreswan.org/man/ipsec.conf.5.html)
-[OpenShift Appliance Builder](https://access.redhat.com/articles/7065136)
-[Image Based Installation](https://access.redhat.com/articles/7075493)
+* [NMState IPSec configuration](https://nmstate.io/devel/yaml_api.html#ipsec-encryption)
+* [Libreswan Configuration](https://libreswan.org/man/ipsec.conf.5.html)
+* [OpenShift Appliance Builder](https://access.redhat.com/articles/7065136)
+* [Image Based Installation](https://access.redhat.com/articles/7075493)
