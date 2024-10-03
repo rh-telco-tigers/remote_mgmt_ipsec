@@ -2,7 +2,9 @@
 
 The following documents an UNSUPPORTED process to deploy an OpenShift SNO cluster in a remote (Edge) site and use IPSec to tunnel (VPN) to a hub cluster at a central site allowing management via ACM. 
 
-This is a Proof of Concept(PoC), and not readtion use, but it shows what is possible.
+This is a Proof of Concept(PoC), and not meant for production use, but it shows what is possible.
+
+We are tracking "Opportunities", or "Challenges", (or some may call them "Issues") in the file [CHALLENGES.md](./CHALLENGES.md)
 
 ![network diagram](docs/remote-ipsec-diagram.png "Network Diagram")
 
