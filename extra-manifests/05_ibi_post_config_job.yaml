@@ -1,0 +1,42 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ibi-config
+  namespace: ibi-post-config
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      serviceAccountName: ibi-config
+      containers:
+      - image: "quay.io/markd/ibi-post-config:latest"
+        name: ibi-debug
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 2Gi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.2"
+        env:
+        - name: K8S_AUTH_API_KEY
+          value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        volumeMounts:
+          - name: klusterlet-crd
+            mountPath: /ansible/dynamic/crd
+          - name: klusterlet-install
+            mountPath: /ansible/dynamic
+      volumes:
+        - name: klusterlet-crd
+          configMap:
+            name: klusterlet-cm
+        - name: klusterlet-install
+          secret:
+            secretName: klusterlet-install-secret
+      # change this to OnFailure once debugging is done
+      # restartPolicy: "OnFailure"
+      restartPolicy: "OnFailure"
+  backoffLimit: 4

@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  klusterlet-install.yaml: 
+  <BASE64Encoded File>
+kind: Secret
+metadata:
+  name: klusterlet-install-secret
+  namespace: ibi-post-config
+type: Opaque
