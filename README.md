@@ -27,7 +27,7 @@ In order to reproduce this demo you will need to follow these steps.
 5. Build a Seed Boot ISO
 6. Install Seed Boot ISO on target hardware
 7. Create ACM secret for joining the cluster
-8. Create Image Configuraiton ISO Image
+8. Create Image Configuration ISO Image
 9. Boot target Edge Hardware with Image Configuration ISO installed
 10. Validate connectivity with ACM
 
@@ -57,7 +57,7 @@ Follow instructions for creating an [Agent based install](https://docs.openshift
 
 See [Creating the preferred configuration inputs](https://docs.openshift.com/container-platform/4.17/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html) for additional details.
 
-To use the IBI Install process, we need to create a special configuration file to partition `/var/lib/containers` into its own partition. For this demo we are using a 700Gb disk, and the example configuration below will create a primary 120Gb partition and a 530Gb partition to be used by `/var/lib/containers`.
+To use the IBI Install process, we need to create a special configuration file to partition `/var/lib/containers` into its own partition. For this demo we are using a 700Gb disk, and the example configuration below will create a primary 120Gb partition and a 530Gb partition to be used by `/var/lib/containers` and a third partition that takes up the rest of the disk that can be used for the LVM storage operator.
 
 98-var-lib-containers-partitioned.yaml
 ```yaml
@@ -73,11 +73,14 @@ spec:
       version: 3.2.0
     storage:
       disks:
-        - device: /dev/sda
+        - device: /dev/nvme0n1
           partitions:
             - label: varlibcontainers
               startMiB: 133120
               sizeMiB: 522240 
+            - label: lvm-storage
+              startMiB: 655360
+              sizeMiB: 0
       filesystems:
         - device: /dev/disk/by-partlabel/varlibcontainers
           format: xfs
@@ -145,11 +148,28 @@ As part of the Demo, we will add the following operators to the seed cluster PRI
 * SRIOV - install and deploy the SRIOV config
 * NFD - install the operator but do NOT deploy the NFD feature
 * NMState - install the operator but do NOT deploy the NMstate feature
+* LVM Storage Operator - Install the operator but do not configure
 * Lifecycle Agent - install the operator
+
+> **NOTE:** files in `seedcluster/operators` can be used to create these operators from the command line.
+
+#### Pull additional containers required
+
+In order to pre-cache additional images not currently running in the seed cluster, we will need to SSH to the seed cluster and run `podman pull <imagename>` for all additional container images you want as a part of the base image.
+
+```bash
+ssh core@<seedcluster>
+sudo podman pull ghcr.io/rh-telco-tigers/guestbook-php/guestbook-php
+sudo podman pull quay.io/markd/ibi-post-config
+# note: the image from the registry below requires login ... need to seet up the pull-secret.json file first for this one
+sudo podman pull registry.redhat.io/rhscl/mariadb-103-rhel7:latest --authfile=/root/pull-secret.json
+# check to ensure that the extra images you need are listed in the output from this command
+sudo crictl images
+```
 
 #### Capture Seed Image
 
-To catpure the seed image, we will need to upload the configuration to a Container Registry. The follow the instructions here: [Generating a seed image with the Lifecycle Agent](https://access.redhat.com/articles/7075493#generating-a-seed-image-with-the-lifecycle-agent-12). Once you have created the secret.
+To capture the seed image, we will need to upload the configuration to a Container Registry. The follow the instructions here: [Generating a seed image with the Lifecycle Agent](https://access.redhat.com/articles/7075493#generating-a-seed-image-with-the-lifecycle-agent-12). Once you have created the secret.
 
 Create a seedgenerator.yaml file updating the image name to match where you will be storing the seed image:
 
@@ -283,6 +303,15 @@ openshift-install image-based create config-image --dir install/
 
 Using the resulting ISO file, attach to the EDGE SITE server and boot the server. After about 20-30 minutes your cluster should be up and running, and connected to the HUB ACM site.
 
+## Application Deployment from ACM
+
+ACM will control the deployment of applications on the remote site. In order to achive this we will need one of the following repositories:
+
+* Git
+* Helm
+* Object Storage (S3)
+
+We will use an example application for deployment called [guestbook-php](https://github.com/rh-telco-tigers/guestbook-php). We will need to define a subscription, 
 
 ## References
 
@@ -290,3 +319,4 @@ Using the resulting ISO file, attach to the EDGE SITE server and boot the server
 * [Libreswan Configuration](https://libreswan.org/man/ipsec.conf.5.html)
 * [OpenShift Appliance Builder](https://access.redhat.com/articles/7065136)
 * [Image Based Installation](https://access.redhat.com/articles/7075493)
+* [ibi_post_config](https://github.com/xphyr/ibi_post_config)

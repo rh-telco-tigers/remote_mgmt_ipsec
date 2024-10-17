@@ -1,0 +1,82 @@
+apiVersion: v1                    
+kind: Namespace
+metadata:
+  name: guestbook-php                             
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: guestbook-php
+  namespace: guestbook-php
+spec:
+  componentKinds:
+  - group: apps.open-cluster-management.io
+    kind: Subscription
+  descriptor: {}
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - guestbook-php
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ggithubcom-rh-telco-tigers-guestbook-php-ns
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  annotations:
+    apps.open-cluster-management.io/reconcile-rate: medium
+  name: ggithubcom-rh-telco-tigers-guestbook-php
+  namespace: ggithubcom-rh-telco-tigers-guestbook-php-ns
+spec:
+  type: Git
+  pathname: 'https://github.com/rh-telco-tigers/guestbook-php'
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  annotations:
+    apps.open-cluster-management.io/git-branch: 
+    apps.open-cluster-management.io/git-path: kubernetes/ocp
+    apps.open-cluster-management.io/reconcile-option: merge
+  labels:
+    app: guestbook-php
+  name: guestbook-php-subscription-1
+  namespace: guestbook-php
+spec:
+  channel: ggithubcom-rh-telco-tigers-guestbook-php-ns/ggithubcom-rh-telco-tigers-guestbook-php
+  placement:
+    placementRef:
+      kind: Placement
+      name: guestbook-php-placement-1
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  labels:
+    app: guestbook-php
+  name: guestbook-php-placement-1
+  namespace: guestbook-php
+spec:
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: 'edge'
+              operator: 'In'
+              values: 
+                - 'true'
+  clusterSets:
+    - default
+---
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  namespace: guestbook-php
+  name: default
+spec:
+  clusterSet: default
