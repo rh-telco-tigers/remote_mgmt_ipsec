@@ -159,7 +159,8 @@ In order to pre-cache additional images not currently running in the seed cluste
 
 ```bash
 ssh core@<seedcluster>
-sudo podman pull ghcr.io/rh-telco-tigers/guestbook-php/guestbook-php
+# the guestbook-php image is currently causing failures. dont do right now
+#sudo podman pull ghcr.io/rh-telco-tigers/guestbook-php/guestbook-php
 sudo podman pull quay.io/markd/ibi-post-config
 # note: the image from the registry below requires login ... need to seet up the pull-secret.json file first for this one
 sudo podman pull registry.redhat.io/rhscl/mariadb-103-rhel7:latest --authfile=/root/pull-secret.json

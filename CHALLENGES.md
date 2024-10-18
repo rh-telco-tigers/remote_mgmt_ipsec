@@ -8,6 +8,30 @@ Pre-caching of additional images in the IBI image is not directly supported at t
 
 It is not possible to create additional partitions on the install disk for use by LVM.
 
+> **NOTE:** This is partially solved with https://github.com/openshift-kni/lifecycle-agent/pull/677. The PR may be rejected for a better more flexible solution based around the MCO syntax. 
+
+```
+# sgdisk -n 6:0:0 --change-name 6:lvm-storage /dev/nvme0n1
+# sgdisk -p /dev/nvme0n1
+Disk /dev/nvme0n1: 1950351360 sectors, 930.0 GiB
+Model: VMware Virtual NVMe Disk
+Sector size (logical/physical): 512/512 bytes
+Disk identifier (GUID): 00000000-0000-4000-A000-000000000001
+Partition table holds up to 128 entries
+Main partition table begins at sector 2 and ends at sector 33
+First usable sector is 2048, last usable sector is 1950351326
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 0 sectors (0 bytes)
+
+Number  Start (sector)    End (sector)  Size       Code  Name
+   1            2048            4095   1024.0 KiB  EF02  BIOS-BOOT
+   2            4096          264191   127.0 MiB   EF00  EFI-SYSTEM
+   3          264192         1050623   384.0 MiB   8300  boot
+   4         1050624       251658239   119.5 GiB   8300  root
+   5       251658240      1300234239   500.0 GiB   8300  varlibcontainers
+   6      1300234240      1950351326   310.0 GiB   8300  lvm-storage
+```
+
 ## Network Name Resolution
 
 DNS name resolution of IPs in the HUB SITE for pods on the OpenShift SDN works because we path the DNS operator to steer DNS lookups for HUB SITE domain names as part of the configuration, however the HOST node does NOT use this configuration, so is unable to do name resolution over the IPSec tunnel.
