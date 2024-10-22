@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipsec-cm
+  namespace: ibi-post-config
+data:
+  ipsec-config.yaml: |2
+
+    ---
+    apiVersion: nmstate.io/v1
+    kind: NodeNetworkConfigurationPolicy
+    metadata:
+      name: ipsec-config
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "<hostName from install>" 
+      desiredState:
+        interfaces:
+        - name: ipsec1
+          type: ipsec
+          libreswan:
+            dpddelay: 15
+            dpdtimeout: 60    
+            left: '%br-ex'
+            leftcert: <certificateName in Cert>
+            leftid: '%fromcert'
+            leftrsasigkey: '%cert'
+            leftsubnet: 0.0.0.0/0
+            leftmodecfgclient: true
+            right: <hostName of remote IPSec Server>
+            rightsubnet: <subnet on remote side>
+            rightid: '@<hostName of remote IPSec Server>'
+            rightrsasigkey: '%cert'
+            ikev2: insist
+            type: tunnel
+            ipsec-interface: 'yes'
+          ipv4:
+            enabled: true
+            dhcp: true

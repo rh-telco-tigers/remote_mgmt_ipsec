@@ -139,6 +139,14 @@ $ openshift-install --dir install agent create image
 
 Use the `agent.x86_64.iso` file to create your Seed cluster.
 
+You can follow the progress of the install:
+
+```
+openshift-install --dir install agent wait-for bootstrap-complete \
+    --log-level=info
+openshift-install --dir install agent wait-for install-complete
+```
+
 ### Create Seed Image
 
 #### Configure Image
@@ -215,6 +223,7 @@ shutdown: true
 
 ```
 $ cd ../ibi/
+$ mkdir ibi-iso-installer
 $ cp image-based-installation-config.yaml ibi-iso-installer
 $ openshift-install417 image-based create image --dir ibi-iso-installer
 ```
@@ -230,32 +239,43 @@ Now that we have our base image installed on hardware that is bound for the EDGE
 
 ### Generate ACM Klusterlet config file
 
-> **NOTE:** This process needs to be automated
+Using the template files in `acm\cluster-import` create a new managed cluster definition, replacing <clusterName> with the name of the remote cluster.
 
-1. Log into your ACM cluster and select the "All Clusters->Infrastructure->Clusters"
-2. Select "Import Cluster"
-3. Enter the EDGE SITE cluster name and select the appropriate cluster set
-4. Ensure "Run import command manually" is selected and Click **Next**
-5. On Automation, click **Next**
-6. Click **Generate command**
-7. Select "Copy Command" and paste the entire contents in to a text editor.
-8. Edit text to save actual files out to text
+Apply the managed cluster definition:
 
-> **NOTE:** All the above needs to be cleaned up and automated. I fully acknowledge its a hack at this point.
+```sh
+oc create -f new-managed-cluster.yaml 
+managedcluster.cluster.open-cluster-management.io/customer2 created
+klusterletaddonconfig.agent.open-cluster-management.io/customer2 created
+```
+
+We now need to extract the Cluster Definition and ACM secret used for authentication:
+
+```sh
+$ mkdir <clusterName>
+$ oc extract secret/<clusterName>-import -n <clusterName> --to=<clusterName>
+customer1/import.yaml
+customer1/crds.yaml
+customer1/crdsv1.yaml
+customer1/crdsv1beta1.yaml
+customer1/expiration
+```
+
+```sh
+oc get secret/<clusterName>-import -n <clusterName> -o json | jq -c 'pick(.metadata.name, .metadata.labels, .apiVersion, .data, .kind, .type)' | jq '.metadata += {"namespace":"ibi-post-config","name":"acm-import-secret"}' > 04_acm-import.json
+```
+
+Copy the resulting `04_acm-import.json` to the `extra-manifests` directory
+
+We will use the files above as part of our EDGE SITE configuration ISO in the next section.
 
 ### Generate the EDGE SITE configuration ISO
 
 The configuration ISO is used to apply all configuration to the EDGE SITE node, via a CD-ROM or USB key. There may be other options for supplying this configuration as well, but they need to be explored.
 
-#### Create 04_klusterlet-crd-cm-template.yaml
+#### Create 04_ipsec-nmstate-cm-template.yaml
 
-Use the file `extra-manifests-templates/04_klusterlet-crd-cm-template.yaml` update the fields for _ipsec-config.yaml_ in the file, and then place a copy of the file in `extra-manifests` directory
-
-#### Create 04_klusterlet_in_sec-template.yaml
-
-This file contains the klusterlet secret that is obtained from ACM in the step [Generate ACM Klusterlet config file](#generate-acm-klusterlet-config-file).
-
-**FURTHER DOCS NEEDED**
+Use the file `extra-manifests-templates/04_ipsec-nmstate-cm-template.yaml` update the fields for _ipsec-config.yaml_ in the file, and then place a copy of the file in `extra-manifests` directory
 
 #### Create 99-ipsec-endpoint-config.yaml
 
@@ -285,8 +305,8 @@ install
 │   ├── 01_ibipostcfg_namespace.yaml
 │   ├── 02_ibi_post_config_sa.yaml
 │   ├── 03_ibi_post_config_crb.yaml
-│   ├── 04_klusterlet-crd-cm.yaml
-│   ├── 04_klusterlet_in_sec.yaml
+│   ├── 04_ipsec-nmstate-cm-template.yaml
+|   ├── 04_acm-import.json
 │   ├── 05_ibi_post_config_job.yaml
 │   └── 99-ipsec-endpoint-config.yml
 ├── image-based-config.yaml
@@ -299,7 +319,7 @@ If you are missing any of the files go back in this section, and follow the inst
 mkdir -p install/extra-manifests
 cp install-config.yaml image-based-config.yaml install
 cp -r extra-manifests/ install
-openshift-install image-based create config-image --dir install/
+openshift-install417 image-based create config-image --dir install/
 ```
 
 Using the resulting ISO file, attach to the EDGE SITE server and boot the server. After about 20-30 minutes your cluster should be up and running, and connected to the HUB ACM site.

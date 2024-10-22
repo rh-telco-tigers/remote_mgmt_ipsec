@@ -2,7 +2,7 @@
 
 This is NOT intended to be a full set of instructions to re-create the VPN Server. This is a set of notes which will allow recreation of the test lab.
 
-> **NOTE:** The use of Fedora Server and Libreswan as the IPSec server is NOT a requirement. Other secrure gateway hardware that supplies IPSec tunneling may be used, but will not be documented here.
+> **NOTE:** The use of Fedora Server and [Libreswan](https://libreswan.org/) as the IPSec server is NOT a requirement. Other secure gateway hardware that supplies IPSec tunneling may be used, but will not be documented here.
 
 ## Requirements
 

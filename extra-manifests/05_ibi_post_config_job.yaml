@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: ibi-config
       containers:
-      - image: "quay.io/markd/ibi-post-config:latest"
+      - image: "quay.io/markd/ibi-post-config:v2"
         name: ibi-debug
         imagePullPolicy: Always
         resources:
@@ -25,17 +25,17 @@ spec:
         - name: K8S_AUTH_API_KEY
           value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
         volumeMounts:
-          - name: klusterlet-crd
-            mountPath: /ansible/dynamic/crd
-          - name: klusterlet-install
-            mountPath: /ansible/dynamic
+          - name: ipsec-cm
+            mountPath: /ansible/dynamic/ipsec
+          - name: acm-import-secret
+            mountPath: /ansible/dynamic/acm
       volumes:
-        - name: klusterlet-crd
+        - name: ipsec-cm
           configMap:
-            name: klusterlet-cm
-        - name: klusterlet-install
+            name: ipsec-cm
+        - name: acm-import-secret
           secret:
-            secretName: klusterlet-install-secret
+            secretName: acm-import-secret
       # change this to OnFailure once debugging is done
       # restartPolicy: "OnFailure"
       restartPolicy: "OnFailure"
