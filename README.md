@@ -262,7 +262,7 @@ customer1/expiration
 ```
 
 ```sh
-oc get secret/<clusterName>-import -n <clusterName> -o json | jq -c 'pick(.metadata.name, .metadata.labels, .apiVersion, .data, .kind, .type)' | jq '.metadata += {"namespace":"ibi-post-config","name":"acm-import-secret"}' > 04_acm-import.json
+oc get secret/<clusterName>-import -n <clusterName> -o json | jq -c 'pick(.metadata.name, .metadata.labels, .apiVersion, .data."crds.yaml", .data."import.yaml", .kind, .type)' | jq '.metadata += {"namespace":"ibi-post-config","name":"acm-import-secret"}' > 04_acm-import.json
 ```
 
 Copy the resulting `04_acm-import.json` to the `extra-manifests` directory
@@ -305,8 +305,8 @@ install
 │   ├── 01_ibipostcfg_namespace.yaml
 │   ├── 02_ibi_post_config_sa.yaml
 │   ├── 03_ibi_post_config_crb.yaml
-│   ├── 04_ipsec-nmstate-cm-template.yaml
 |   ├── 04_acm-import.json
+│   ├── 04_ipsec-nmstate-cm.yaml
 │   ├── 05_ibi_post_config_job.yaml
 │   └── 99-ipsec-endpoint-config.yml
 ├── image-based-config.yaml
