@@ -1,0 +1,37 @@
+apiVersion: v1beta1
+kind: ImageBasedConfig
+metadata:
+  name: customer3
+additionalNTPSources:
+  - 0.rhel.pool.ntp.org
+  - 1.rhel.pool.ntp.org
+hostname: customer3
+releaseRegistry: quay.io
+# networkConfig contains the network configuration for the host in NMState format.
+# See https://nmstate.io/examples.html for examples.
+networkConfig:
+    interfaces:
+      - name: eno1
+        type: ethernet
+        state: up
+        mtu: 9000
+        ipv4:
+          enabled: true
+          dhcp: false
+          auto-dns: false
+          address:
+            - ip: 192.168.80.93
+              prefix-length: 24
+        ipv6:
+          enabled: false
+    dns-resolver:
+      config:
+        server:
+          - 8.8.8.8
+          - 1.1.1.1
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        metric: 150
+        next-hop-address: 192.168.80.1
+        next-hop-interface: eno1
