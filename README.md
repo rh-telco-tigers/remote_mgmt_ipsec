@@ -157,6 +157,7 @@ As part of the Demo, we will add the following operators to the seed cluster PRI
 * NFD - install the operator but do NOT deploy the NFD feature
 * NMState - install the operator but do NOT deploy the NMstate feature
 * LVM Storage Operator - Install the operator but do not configure
+* Ingress Node Firewall Operator - Install the operator and configure the base deployment
 * Lifecycle Agent - install the operator
 
 > **NOTE:** files in `seedcluster/operators` can be used to create these operators from the command line.
@@ -167,10 +168,10 @@ In order to pre-cache additional images not currently running in the seed cluste
 
 ```bash
 ssh core@<seedcluster>
-# the guestbook-php image is currently causing failures. dont do right now
+# the guestbook-php image is currently causing failures. don't do right now
 #sudo podman pull ghcr.io/rh-telco-tigers/guestbook-php/guestbook-php
 sudo podman pull quay.io/markd/ibi-post-config
-# note: the image from the registry below requires login ... need to seet up the pull-secret.json file first for this one
+# note: the image from the registry below requires login ... need to set up the pull-secret.json file first for this one
 sudo podman pull registry.redhat.io/rhscl/mariadb-103-rhel7:latest --authfile=/root/pull-secret.json
 # check to ensure that the extra images you need are listed in the output from this command
 sudo crictl images
@@ -230,6 +231,8 @@ $ openshift-install417 image-based create image --dir ibi-iso-installer
 
 Use the resulting ISO image to install the base "un-configured" SNO cluster on your target EDGE SITE machines. Once the image is installed on the hardware, the system will power down for delivery.
 
+> **NOTE:** you can follow the install process by ssh to the node and run `sudo journalctl -u install-rhcos-and-restore-seed.service --follow`
+
 ## Deploying an EDGE SITE machine
 
 Now that we have our base image installed on hardware that is bound for the EDGE SITE, we need to create the site configuration. This includes two steps:
@@ -239,7 +242,7 @@ Now that we have our base image installed on hardware that is bound for the EDGE
 
 ### Generate ACM Klusterlet config file
 
-Using the template files in `acm\cluster-import` create a new managed cluster definition, replacing <clusterName> with the name of the remote cluster.
+Using the template files in `acm/cluster-import` create a new managed cluster definition, replacing <clusterName> with the name of the remote cluster.
 
 Apply the managed cluster definition:
 
@@ -264,6 +267,8 @@ customer1/expiration
 ```sh
 oc get secret/<clusterName>-import -n <clusterName> -o json | jq -c 'pick(.metadata.name, .metadata.labels, .apiVersion, .data."crds.yaml", .data."import.yaml", .kind, .type)' | jq '.metadata += {"namespace":"ibi-post-config","name":"acm-import-secret"}' > 04_acm-import.json
 ```
+
+> **NOTE:** In order for the above command to work, the openshift-installer must support JSON files in the extra-manifests directory. Once [PR-9136](https://github.com/openshift/installer/pull/9136) is released, this problem will go away.
 
 Copy the resulting `04_acm-import.json` to the `extra-manifests` directory
 

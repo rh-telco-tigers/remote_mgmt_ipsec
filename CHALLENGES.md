@@ -44,7 +44,8 @@ DNS name resolution of IPs in the HUB SITE for pods on the OpenShift SDN works b
 ## Remote management opportunities
 
 * hardware failure/os hang/OS image corrupt - how recover from this
-* Disable all access 22, 443, 6443, 80 - Possible Solution "Ingress Node Firewall"-  [https://docs.openshift.com/container-platform/4.16/networking/network_security/ingress-node-firewall-operator.html](https://docs.openshift.com/container-platform/4.16/networking/network_security/ingress-node-firewall-operator.html)
+* Disable all access 22, 443, 6443, 80 on Primary network - Possible Solution [Ingress Node Firewall](https://docs.openshift.com/container-platform/4.16/networking/network_security/ingress-node-firewall-operator.html)
+* Port 80/443 are available on the IPSec tunnel giving UI access, however KubeAPI is not. This limits the ability to use `kubectl`, `oc` and other api management tools remotely.
 
 ## Software opportunities
 
@@ -53,4 +54,12 @@ DNS name resolution of IPs in the HUB SITE for pods on the OpenShift SDN works b
 ## Security opportunities
 
 Authentication in clear text on configuration ISO image [https://github.com/rh-telco-tigers/remote_mgmt_ipsec/blob/main/extra-manifests-templates/99-ipsec-endpoint-config.bu#L38](https://github.com/rh-telco-tigers/remote_mgmt_ipsec/blob/main/extra-manifests-templates/99-ipsec-endpoint-config.bu#L38)
+
+## Log Streaming
+
+Need a way to stream logs off the remote server to ACM 
+
+## Alerts/Prometheus data
+
+Need a way to ensure that the speeds and feeds can be accessed seen in acm
 
