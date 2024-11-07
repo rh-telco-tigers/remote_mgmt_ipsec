@@ -45,7 +45,7 @@ DNS name resolution of IPs in the HUB SITE for pods on the OpenShift SDN works b
 
 * hardware failure/os hang/OS image corrupt - how recover from this
 * Disable all access 22, 443, 6443, 80 on Primary network - Possible Solution [Ingress Node Firewall](https://docs.openshift.com/container-platform/4.16/networking/network_security/ingress-node-firewall-operator.html)
-* Port 80/443 are available on the IPSec tunnel giving UI access, however KubeAPI is not. This limits the ability to use `kubectl`, `oc` and other api management tools remotely.
+* The IPSec tunnel allows for Port 22 (ssh) access initialing outside the cluster, but does not work for the managment ports for the platform (Port 80/443 and 6443). This limits the ability to use `kubectl`, `oc` and other api management tools remotely.
 
 ## Software opportunities
 
