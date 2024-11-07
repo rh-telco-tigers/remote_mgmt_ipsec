@@ -6,6 +6,8 @@ This is a Proof of Concept(PoC), and not meant for production use, but it shows 
 
 We are tracking "Opportunities", or "Challenges", (or some may call them "Issues") in the file [CHALLENGES.md](./CHALLENGES.md)
 
+The following diagram shows what we are attempting to achieve with this demo:
+
 ![network diagram](docs/remote-ipsec-diagram.png "Network Diagram")
 
 ## Workflow
@@ -40,11 +42,12 @@ In order to reproduce this PoC you will need the following:
   * Edge Location (Referred to as "EDGE SITE" for the remainder of this document) where you will be deploying the SNO cluster
 * HUB SITE will require an IPsec service/router for the remote EDGE SITE nodes to connect to. Creation and configuration of IPSec service is outside the scope of this document
   * HUB SITE IPsec service should supply a signed certificate for use for authentication in pk12 format
+  * Notes on how to build a IPSec server are located in the file [IPSEC-Install-Notes.md](/vpn-ipsec/IPSEC-Install-Notes.md)
 * HUB SITE hardware with minimum of 32GB  Ram, 12 Cores, and 700GB of disk space
 
 ## Building the DEMO setup
 
-### Build SNO cluster to be used as a "SEED" server
+### Build Default SNO cluster to be used as a "SEED" server
 
 A Seed cluster will be required to create the base Image. The Seed cluster must be the same or similar in hardware, specifically the local storage configuration. The disk size and layout will be copied from your source Seed cluster to all subsequent EDGE SITE nodes.
 
@@ -57,7 +60,7 @@ Follow instructions for creating an [Agent based install](https://docs.openshift
 
 See [Creating the preferred configuration inputs](https://docs.openshift.com/container-platform/4.17/installing/installing_with_agent_based_installer/preparing-to-install-with-agent-based-installer.html) for additional details.
 
-To use the IBI Install process, we need to create a special configuration file to partition `/var/lib/containers` into its own partition. For this demo we are using a 700Gb disk, and the example configuration below will create a primary 120Gb partition and a 530Gb partition to be used by `/var/lib/containers` and a third partition that takes up the rest of the disk that can be used for the LVM storage operator.
+To use the IBI Install process, we need to create a special configuration file to partition `/var/lib/containers` into its own partition. For this demo we are using a 700Gb disk, and the example configuration below will create a primary 120Gb partition and a 530Gb partition to be used by `/var/lib/containers`.
 
 See an example file in `seedcluster/openshift/98-var-lib-containers-partitioned.yaml` in this repository. Be sure to update the following section **spec.config.storage.disks.device** 
 
@@ -73,6 +76,22 @@ Once you have created the `install-config.yaml, agent-config.yaml, 98-var-lib-co
 $ mkdir -p install/openshift
 $ cp agent-config.yaml install-config.yaml install
 $ cp 98-var-lib-containers-partioned.yaml  cluster-network-03-config.yaml install/openshift/
+```
+
+Ensure that your directory structure looks like this:
+
+```
+install
+├── openshift
+│   ├── cluster-network-03-config.yaml
+│   └── 98-var-lib-containers-partioned.yaml
+├── agent-config.yaml
+└── install-config.yaml
+```
+
+Once you have the files in the proper location, create the agent image ISO.
+
+```bash
 $ openshift-install --dir install agent create image
 ```
 
@@ -84,6 +103,12 @@ You can follow the progress of the install:
 $ openshift-install --dir install agent wait-for bootstrap-complete --log-level=info && \
   openshift-install --dir install agent wait-for install-complete
 ```
+
+#### YouTube Video:
+
+The following video will show you the above process:
+
+[![Deploy Seed Cluster video](docs/01-seed-install.png)](https://youtu.be/RzD7ky_vX3U)
 
 ### Create Seed Image
 
@@ -143,7 +168,13 @@ $ oc get seedgenerator -o yaml
 
 The output should contain "Seed Generation completed: True".
 
-### Generate Seed Image Install Disk
+##### YouTube Video:
+
+The following video will show you the above process:
+
+[![Watch the video](docs/02-configure-seed.png)](https://youtu.be/Q-59QiwnqPE)
+
+#### Generate Seed Image Install Disk
 
 With the seed image created, you will need to generate an "Installer Image", this image is used to apply the base "un-configured" OpenShift cluster that can be applied to multiple servers. The same image can be used for multiple "EDGE SITE" nodes.
 
@@ -170,6 +201,12 @@ $ openshift-install417 image-based create image --dir ibi-iso-installer
 Use the resulting ISO image to install the base "un-configured" SNO cluster on your target EDGE SITE machines. Once the image is installed on the hardware, the system will power down for delivery.
 
 > **NOTE:** you can follow the install process by ssh to the node and run `sudo journalctl -u install-rhcos-and-restore-seed.service --follow`
+
+##### YouTube Video:
+
+The following video will show you the above process:
+
+[![Watch the video](docs/03-gen-gold-image.png)](https://youtu.be/1uvkmKU_0M0)
 
 ## Deploying an EDGE SITE machine
 
@@ -263,6 +300,18 @@ $ openshift-install417 image-based create config-image --dir install/
 
 Using the resulting ISO file, attach to the EDGE SITE server and boot the server. After about 20-30 minutes your cluster should be up and running, and connected to the HUB ACM site.
 
+#### YouTube Video:
+
+The following video will show you the above process:
+
+[![Watch the video](docs/04-gen-edge-config.png)](https://youtu.be/eUI_oZlvoVQ)
+
+#### YouTube Video:
+
+This is the final video recording. This recording will show the "Edge" device booting up, and configuring based on the config-iso that was created in the last section, establishing the IPSec tunnel and joining the ACM cluster.
+
+[![Watch the video](docs/05-deploy-edge.png)](https://youtu.be/GcfmU9onK0A)
+
 ## Application Deployment from ACM
 
 ACM will control the deployment of applications on the remote site. In order to achive this we will need one of the following repositories:
@@ -271,7 +320,7 @@ ACM will control the deployment of applications on the remote site. In order to 
 * Helm
 * Object Storage (S3)
 
-We will use an example application for deployment called [guestbook-php](https://github.com/rh-telco-tigers/guestbook-php). We will need to define a subscription.
+We will use an example application for deployment called [guestbook-php](https://github.com/rh-telco-tigers/guestbook-php). We will need to define a subscription. You can leverage the `acm\guestbook-php-application.yaml` file as a basis for creating an application in your ACM hub.  See [Red Hat ACM for Kubernetes - Applications](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.11/html/applications/index) for more details.
 
 ## References
 
