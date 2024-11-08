@@ -292,6 +292,8 @@ install
 └── install-config.yaml
 ```
 
+> **NOTE:** [PR Request 9136](https://github.com/openshift/installer/pull/9136) must be merged into the installer before the json file imports will work.
+
 You can now run the installer:
 
 ```bash
@@ -299,6 +301,8 @@ $ openshift-install417 image-based create config-image --dir install/
 ```
 
 Using the resulting ISO file, attach to the EDGE SITE server and boot the server. After about 20-30 minutes your cluster should be up and running, and connected to the HUB ACM site.
+
+> **NOTE:** The "ibi_post_config" files are a separate project https://github.com/xphyr/ibi_post_config. This project contains the scripting used to run a post configuration job that finalizes the configuration of the SNO cluster, including applying the IPSec files and configuring the klusterlet to run on the cluster. This can be further modified to address additional features that may need to be added to a cluster, prior to it joining the ACM Hub.
 
 #### YouTube Video:
 
