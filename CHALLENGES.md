@@ -1,5 +1,9 @@
 # Areas for Improvement
 
+## IPv6 Support
+
+This process was tested/deployed with IPv4. It should be re-tested with IPv6 to ensure that all the processes work via IPv6
+
 ## Pre-caching of images not directly supported.
 
 Pre-caching of additional images in the IBI image is not directly supported at this time. A workaround is currently documented in the README.md file.
