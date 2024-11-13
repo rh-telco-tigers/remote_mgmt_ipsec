@@ -326,6 +326,10 @@ ACM will control the deployment of applications on the remote site. In order to 
 
 We will use an example application for deployment called [guestbook-php](https://github.com/rh-telco-tigers/guestbook-php). We will need to define a subscription. You can leverage the `acm\guestbook-php-application.yaml` file as a basis for creating an application in your ACM hub.  See [Red Hat ACM for Kubernetes - Applications](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.11/html/applications/index) for more details.
 
+## Troubleshooting
+
+If you are running into issues with connecting to the OpenShift API or the Management Console over the IPSec tunnel, your issue is probably with MTU (Maximum Transmission Unit). By default IPSec tunnels have a maximum MTU of 1438, so any communication between your client and needs to fit within the MTU of the IPSec tunnel.  This can be achieved by setting the MTU on your client machine to 1428 or less, OR by setting the OpenShift cluster SDN to an MTU below 1438.
+
 ## References
 
 * [NMState IPSec configuration](https://nmstate.io/devel/yaml_api.html#ipsec-encryption)

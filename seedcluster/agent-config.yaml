@@ -1,0 +1,36 @@
+apiVersion: v1alpha1
+kind: AgentConfig
+metadata:
+  name: <clusterName>
+rendezvousIP: 172.16.25.97 
+hosts:
+  - hostname: <clusterName>
+    role: master
+    interfaces:
+      - name: <interfaceName>
+        macAddress: <macAddress>
+    networkConfig:
+      interfaces:
+        - name: <interfaceName>
+          type: ethernet
+          state: up
+          # mtu: 9000
+          # NOTE: Using large MTU may cause issues with IPsec tunnel. 
+          mac-address: <macAddress>
+          ipv4:
+            enabled: true
+            address:
+              - ip: 172.16.25.97
+                prefix-length: 24 
+            dhcp: false
+      dns-resolver:
+        config:
+          server:
+            - 172.16.15.6
+            - 172.16.15.7
+      routes:
+        config:
+          - destination: 0.0.0.0/0
+            next-hop-address: 172.16.25.1 
+            next-hop-interface: <interfaceName>
+            table-id: 254
