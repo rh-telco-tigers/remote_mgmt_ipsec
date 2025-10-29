@@ -285,6 +285,13 @@ Re-enter password:
 pk12util: PKCS12 EXPORT SUCCESSFUL
 ```
 
+Initialize the IPSec Database (this only needs to be done once per configuration)
+
+```
+$ sudo ipsec checknss
+Initializing NSS database
+```
+
 Now import the cert into the IPSec database
 
 ```bash
