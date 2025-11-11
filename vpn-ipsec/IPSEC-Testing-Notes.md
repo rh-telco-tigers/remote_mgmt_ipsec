@@ -26,7 +26,7 @@ Create the following file and place in /etc/ipsec.d/aws-vpn.conf
 conn aws-vpn
     ikev2=insist
     # pick up our dynamic IP
-    left=<your clients local IP address>
+    left=%enp1s0
     leftsubnet=0.0.0.0/0
     leftcert=<match the name of the cert you imported above>
     leftid=%fromcert
@@ -34,9 +34,9 @@ conn aws-vpn
     # right can also be a DNS hostname
     right=<vpn server name>
     # if access to the remote LAN is required, enable this, otherwise use 0.0.0.0/0
-    #rightsubnet=10.10.0.0/16
+    rightsubnet=10.10.0.0/16
     require-id-on-certificate=no
-    rightsubnet=0.0.0.0/0
+    #rightsubnet=0.0.0.0/0
     fragmentation=yes
     # trust our own Certificate Agency
     rightca=%same
@@ -47,7 +47,10 @@ conn aws-vpn
     mobike=yes
     # initiate connection
     auto=start
+    mtu=1300
 ```
+
+> **NOTE:** Update left=%enp1s0 with the primary interface name of your client host (eg. %eth0, or %esn256, etc)
 
 ## Start IPSec
 
