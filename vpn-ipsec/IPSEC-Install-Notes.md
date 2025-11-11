@@ -54,6 +54,7 @@ conn access-vpn
     rekey=no
     # ikev2 fragmentation support requires libreswan 3.14 or newer
     fragmentation=yes
+	mtu=1300
 ```
 
 ## Creating the Certificates for use
