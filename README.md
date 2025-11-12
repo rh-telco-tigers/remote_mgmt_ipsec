@@ -328,7 +328,7 @@ We will use an example application for deployment called [guestbook-php](https:/
 
 ## Troubleshooting
 
-If you are running into issues with connecting to the OpenShift API or the Management Console over the IPSec tunnel, your issue is probably with MTU (Maximum Transmission Unit). By default IPSec tunnels have a maximum MTU of 1438, so any communication between your client and needs to fit within the MTU of the IPSec tunnel.  This can be achieved by setting the MTU on your client machine to 1428 or less, OR by setting the OpenShift cluster SDN to an MTU below 1438.
+If you are running into issues with connecting to the OpenShift API or the Management Console over the IPSec tunnel, your issue is probably with MTU (Maximum Transmission Unit). By default IPSec tunnels have a maximum MTU of 1438, so any communication between your client and needs to fit within the MTU of the IPSec tunnel.  This can be achieved by setting the MTU on your client machine to 1428 or less, OR by setting the OpenShift cluster SDN to an MTU below 1438. You can also set the MTU on the IPSec tunnel itself with the "mtu=xxxx" option in your ipsec configuration files.
 
 ## References
 
