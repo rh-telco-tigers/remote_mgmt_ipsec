@@ -187,9 +187,12 @@ seedImage: <seed image from SeedGenerator.yaml>
 seedVersion: 4.16.11
 pullSecret: '<pull secret>'
 installationDisk: /dev/sda
+extraPartitionStart: -500Gb
 sshKey: '<ssh-key-here>'
 shutdown: true
 ```
+
+> **NOTE:** `extraPartitionStart` should be added if your edgeServer has only 1 disk. The option will set asside 500GB from the end of the disk, leaving the remaining disk space for the /boot and / partitions
 
 ```
 $ cd ../ibi/
@@ -234,7 +237,7 @@ export CLUSTERNAME=<clusterName>
 oc get secret/${CLUSTERNAME}-import -n ${CLUSTERNAME} -o json | jq -c 'pick(.metadata.name, .metadata.labels, .apiVersion, .data."crds.yaml", .data."import.yaml", .kind, .type)' | jq '.metadata += {"namespace":"ibi-post-config","name":"acm-import-secret"}' > 04_acm-import.json
 ```
 
-> **NOTE:** In order for the above command to work, the openshift-installer must support JSON files in the extra-manifests directory. Once [PR-9136](https://github.com/openshift/installer/pull/9136) is released, this problem will go away.
+> **NOTE:** In order for the above command to work, the openshift-installer must support JSON files in the extra-manifests directory. Support for JSON files was added in 4.19 [PR-9136](https://github.com/openshift/installer/pull/9136). If you are using a version prior to 4.19, you can convert the json to yaml using the `yq` command as follows `yq -p json -o yaml 04_acm-import.json > 04_acm-import.yaml`
 
 Copy the resulting `04_acm-import.json` to the `extra-manifests` directory
 
