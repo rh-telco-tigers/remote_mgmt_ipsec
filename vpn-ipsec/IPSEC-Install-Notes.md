@@ -106,6 +106,7 @@ N
 ```
 Generate the server certificate and assign extensions:
 # certutil -S -c "Example CA" -n "vpn.example.com" -s "O=Example,CN=vpn.example.com" \
+   --extSAN IP:18.225.98.185 \
    -k rsa -g 4096 -v 12 -d sql:${HOME}/certdb -t ",," -1 -6 -8 "vpn.example.com"
 
 A random seed must be generated that will be used in the
