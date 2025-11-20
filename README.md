@@ -289,6 +289,7 @@ install
 │   ├── 03_ibi_post_config_crb.yaml
 |   ├── 04_acm-import.json
 │   ├── 04_ipsec-nmstate-cm.yaml
+│   ├── 04_ibi_post_config_cm.yaml
 │   ├── 05_ibi_post_config_job.yaml
 │   └── 99-ipsec-endpoint-config.yml
 ├── image-based-config.yaml

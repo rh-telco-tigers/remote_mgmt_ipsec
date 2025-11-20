@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: ibi-config
       containers:
-      - image: "quay.io/markd/ibi-post-config:v2"
+      - image: "quay.io/markd/ibi-post-config:v3"
         name: ibi-debug
         imagePullPolicy: Always
         resources:
@@ -27,12 +27,17 @@ spec:
         volumeMounts:
           - name: ipsec-cm
             mountPath: /ansible/dynamic/ipsec
+          - name: hubconfig-cm
+            mountPath: /ansible/dynamic/vars  
           - name: acm-import-secret
             mountPath: /ansible/dynamic/acm
       volumes:
         - name: ipsec-cm
           configMap:
             name: ipsec-cm
+        - name: hubconfig-cm
+          configMap:
+            name: hubconfig-cm
         - name: acm-import-secret
           secret:
             secretName: acm-import-secret

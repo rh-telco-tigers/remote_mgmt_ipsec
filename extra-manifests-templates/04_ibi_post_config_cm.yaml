@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hubconfig-cm
+  namespace: ibi-post-config
+data:
+    ibi_post_config_vars.yaml: |
+      # Variables that need to be updated based on Hub cluster network config
+      dnsConfigName: rh1config
+      dnsZones:
+      - sandbox851.opentlc.com
+      dnsServers:
+      - 10.0.0.2
+      hubClusterHostName: api.rh1-hub.sandbox851.opentlc.com
+      hubClusterIPAddress: 10.0.2.158
